@@ -1,1 +1,1 @@
-web: python web.py
+jerk: python jerkbot.py
