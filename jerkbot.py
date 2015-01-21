@@ -10,14 +10,14 @@ consumer_key = os.environ.get('TWITTER_CONSUMER_KEY')
 consumer_secret = os.environ.get('TWITTER_CONSUMER_SECRET')
 access_token = os.environ.get('TWITTER_ACCESS_TOKEN')
 access_token_secret = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
-redis_host = os.environ.get('REDIS_HOST')
-redis_port = os.environ.get('REDIS_PORT')
+redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 
 api = tweepy.API(auth_handler=auth, wait_on_rate_limit=True)
-r = redis.StrictRedis(host=redis_host, port=redis_port)
+
+r = redis.from_url(redis_url)
 
 def untokenize(tokenized_text):
     return "".join([" "+i if not i.startswith("'") and i not in string.punctuation else i for i in tokenized_text]).strip()
