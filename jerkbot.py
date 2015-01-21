@@ -31,7 +31,6 @@ class Jerkbot:
         return r.set('previous_position', tweet_id)
 
     def previous_position(self):
-        return None
         return r.get('previous_position')
 
     def next_tweet(self):
@@ -59,12 +58,14 @@ class Jerkbot:
 
     def next_annoyance(self):
         tweet = self.next_tweet()
-        return self.cheekify(self.replace_with_lego(tweet['text']))
+        if tweet:
+            return self.cheekify(self.replace_with_lego(tweet['text']))
 
     def annoy(self):
-        next_annoyance = self.next_annoyance()
-        print next_annoyance
-        api.update_status(next_annoyance)
+        annoyance = self.next_annoyance()
+        if annoyance:
+            print annoyance
+            api.update_status(annoyance)
 
 
 if __name__ == "__main__":
