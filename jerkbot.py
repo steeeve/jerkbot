@@ -25,7 +25,7 @@ api = tweepy.API(auth_handler=auth, wait_on_rate_limit=True)
 r = redis.from_url(redis_url)
 
 def untokenize(tokenized_text):
-    return "".join([" "+i if not i.startswith("'") and i not in string.punctuation else i for i in tokenized_text]).strip()
+    return "".join([" "+i if not i.startswith("@") and not i.startswith("'") and i not in string.punctuation else i for i in tokenized_text]).strip()
 
 class Jerkbot:
 
@@ -44,14 +44,22 @@ class Jerkbot:
         if len(result) > 0:
             [tweet] = result
             self.save_position(tweet.id)
-            return {'id': tweet.id, 'text': tweet.text}
+            if "@" not in tweet.text:
+                return {'id': tweet.id, 'text': tweet.text}
+            else:
+                print "No suitable tweet."
+        else:
+            print "No new tweets."
 
     def replace_with_lego(self, tweet_text):
         tagged_tweet = pos_tag(word_tokenize(tweet_text))
 
         for i, (word, tag) in enumerate(tagged_tweet):
-            if tag == 'NNP' or tag == 'NNPS':
+            if tag == 'NNP':
                 tagged_tweet[i] = ("Lego", tag)
+                break
+            if tag == 'NNPS':
+                tagged_tweet[i] = ("Legos", tag)
                 break
 
         tokenized_tweet = [ word[0] for word in tagged_tweet ]
