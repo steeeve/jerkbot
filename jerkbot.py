@@ -3,6 +3,7 @@ import re
 import string
 import tweepy
 import redis
+from nltk import data as nltk_data
 from nltk import word_tokenize
 from nltk.tag import pos_tag
 
@@ -13,6 +14,8 @@ consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
 access_token = os.getenv('TWITTER_ACCESS_TOKEN')
 access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
+
+nltk_data.path.append('./nltk_data/')
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
