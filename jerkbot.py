@@ -6,10 +6,12 @@ import redis
 from nltk import word_tokenize
 from nltk.tag import pos_tag
 
-consumer_key = os.environ.get('TWITTER_CONSUMER_KEY')
-consumer_secret = os.environ.get('TWITTER_CONSUMER_SECRET')
-access_token = os.environ.get('TWITTER_ACCESS_TOKEN')
-access_token_secret = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
+update_status = True if os.getenv('UPDATE_STATUS', False) == 'TRUE' else False
+ignore_previous = True if os.getenv('IGNORE_PREVIOUS', False) == 'TRUE' else False
+consumer_key = os.getenv('TWITTER_CONSUMER_KEY')
+consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
+access_token = os.getenv('TWITTER_ACCESS_TOKEN')
+access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
 redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -31,13 +33,13 @@ class Jerkbot:
         return r.set('previous_position', tweet_id)
 
     def previous_position(self):
-        return r.get('previous_position')
+        if not ignore_previous:
+            return r.get('previous_position')
 
     def next_tweet(self):
         result = api.user_timeline(screen_name=self.twitter_user, since_id=self.previous_position(), count=1)
         if len(result) > 0:
             [tweet] = result
-            self.save_position(tweet.id)
             return {'id': tweet.id, 'text': tweet.text}
 
     def replace_with_lego(self, tweet_text):
@@ -65,7 +67,9 @@ class Jerkbot:
         annoyance = self.next_annoyance()
         if annoyance:
             print annoyance
-            api.update_status(annoyance)
+            if update_status:
+                self.save_position(tweet.id)
+                api.update_status(annoyance)
 
 
 if __name__ == "__main__":
