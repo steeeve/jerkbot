@@ -43,6 +43,7 @@ class Jerkbot:
         result = api.user_timeline(screen_name=self.twitter_user, since_id=self.previous_position(), count=1)
         if len(result) > 0:
             [tweet] = result
+            self.save_position(tweet.id)
             return {'id': tweet.id, 'text': tweet.text}
 
     def replace_with_lego(self, tweet_text):
@@ -71,7 +72,6 @@ class Jerkbot:
         if annoyance:
             print annoyance
             if update_status:
-                self.save_position(tweet.id)
                 api.update_status(annoyance)
 
 
