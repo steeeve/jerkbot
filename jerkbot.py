@@ -25,7 +25,11 @@ api = tweepy.API(auth_handler=auth, wait_on_rate_limit=True)
 r = redis.from_url(redis_url)
 
 def untokenize(tokenized_text):
-    return "".join([" "+i if not i.startswith("@") and not i.startswith("'") and i not in string.punctuation else i for i in tokenized_text]).strip()
+    glued_text = "".join([" "+i for i in tokenized_text]).strip()
+    glued_text = re.sub(r'\s([!?,./])', r'\1', glued_text)
+    glued_text = re.sub(r'\s?([\':])\s?', r'\1', glued_text)
+    glued_text = re.sub(r'([#`])\s?', r'\1', glued_text)
+    return glued_text
 
 class Jerkbot:
 
@@ -55,12 +59,10 @@ class Jerkbot:
         tagged_tweet = pos_tag(word_tokenize(tweet_text))
 
         for i, (word, tag) in enumerate(tagged_tweet):
-            if tag == 'NNP':
+            if tag in ['NN', 'NNP']:
                 tagged_tweet[i] = ("Lego", tag)
-                break
-            if tag == 'NNPS':
+            if tag in ['NNS', 'NNPS']:
                 tagged_tweet[i] = ("Legos", tag)
-                break
 
         tokenized_tweet = [ word[0] for word in tagged_tweet ]
 
