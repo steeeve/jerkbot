@@ -1,4 +1,4 @@
-ipython==2.3.1
+ptpython==0.4
 nltk==3.0.1
 numpy==1.9.1
 redis==2.10.3

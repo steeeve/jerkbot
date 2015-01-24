@@ -1,1 +1,1 @@
-jerk: python jerkbot.py
+jerk: python app.py
